@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.java.xdigit_message2.dao.MessageDAO;
@@ -16,11 +18,13 @@ public class MessageService {
 	@Autowired
 	private MessageDAO messageDAO;
 	
+	
 	public Map<String, Object> saveMessage(String sessionId, String message) {
 	return Map.of("message", messageDAO.saveMessage(
 	new MessageEnt(sessionId, message, new Date())));
 	}
 	
+	@Cacheable(value="message", key="#id")
 	public List<MessageEnt> getBySessinId(Map<String, Object> reqMap){
 		return messageDAO.getById(reqMap.get("sessionId").toString());
 	}
@@ -36,6 +40,7 @@ public class MessageService {
    return list;
    }
 	
+   @CacheEvict(value="message", key="#id")	
    public String deleteMesasges(String sessionId) {
 	    return messageDAO.deleteMessages(sessionId);
    }
